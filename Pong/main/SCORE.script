@@ -1,0 +1,15 @@
+function init(self)
+	self.player1_score = 0
+	self.player2_score = 0
+end
+
+function on_message(self, message_id, message, sender)
+	if message_id == hash("player1_scored") then
+		self.player1_score = self.player1_score + 1
+		label.set_text("#label", self.player1_score .. " : " .. self.player2_score)
+	end
+	if message_id == hash("player2_scored") then
+		self.player2_score = self.player2_score + 1
+		label.set_text("#label", self.player1_score .. " : " .. self.player2_score)
+	end
+end

@@ -1,0 +1,68 @@
+function init(self)
+	-- set the random number seed and discard the first value
+	math.randomseed(os.time())
+	math.random()
+	-- store the original position of the ball so we can reset it after a goal
+	self.respawn_position = go.get_position()
+	-- spawn the ball
+	self.speed = 500
+	spawn_ball(self)
+end
+
+function spawn_ball(self)
+	go.set_position(self.respawn_position)
+	-- set an initial random direction of travel using a vector
+	local x = math.random(1,3)
+	local y = math.random(1,3)
+	local x_direction = math.random(1,2)
+	local y_direction = math.random(1,2)
+	if x_direction == 1 then
+		x = -x
+	end
+	if y_direction == 1 then
+		y = -y
+	end
+	self.direction = vmath.normalize(vmath.vector3(x,y, 0))
+end
+
+function update(self, dt)
+	-- move the ball in it's current direction at a speed in pixels per second
+	local pos = go.get_position()
+	pos = pos + self.direction * self.speed * dt
+	go.set_position(pos)
+
+	-- check if the ball has hit the top or bottom of the screen
+	if pos.y < 15 or pos.y > 625 then
+		self.direction.y = -self.direction.y
+	end
+
+	-- check if a goal has been scored
+	if pos.x < -15 then
+		msg.post("score", "player2_scored")
+		sound.play("#goal")
+		spawn_ball(self)
+	end
+	if pos.x > 975 then
+		msg.post("score", "player1_scored")
+		sound.play("#goal")
+		spawn_ball(self)
+	end
+end
+
+function on_message(self, message_id, message, sender)
+	if message_id == hash("contact_point_response") then
+		-- Move ball out of the paddle
+		go.set_position(go.get_position() + message.normal * message.distance)
+		-- Calculate bounce angle
+		local pos = go.get_position()
+		local paddle = go.get_position(message.other_id)
+		local paddle_intersect = paddle.y - pos.y
+		local bounce_vector = paddle_intersect * 1.3
+		-- Set new direction
+		self.direction.y = -math.sin(bounce_vector)
+		self.direction.x = -self.direction.x
+		-- Normalise direction to ensure constant speed
+		self.direction = vmath.normalize(self.direction)
+		sound.play("#bounce")
+	end
+end

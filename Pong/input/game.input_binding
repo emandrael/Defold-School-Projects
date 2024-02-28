@@ -1,0 +1,20 @@
+key_trigger {
+  input: KEY_W
+  action: "player1_up"
+}
+key_trigger {
+  input: KEY_S
+  action: "player1_down"
+}
+key_trigger {
+  input: KEY_UP
+  action: "player2_up"
+}
+key_trigger {
+  input: KEY_DOWN
+  action: "player2_down"
+}
+mouse_trigger {
+  input: MOUSE_BUTTON_1
+  action: "touch"
+}
